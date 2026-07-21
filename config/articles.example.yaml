@@ -13,6 +13,6 @@ articles:
 
 pipeline:
   language: en
-  ollama_model: qwen2.5vl:7b
+  ollama_model: gemma4:e4b-it-q4_K_M
   max_images_per_article: 10
   keep_confidence_threshold: 0.70

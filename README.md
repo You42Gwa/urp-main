@@ -29,7 +29,13 @@ python -m pip install -e ".[vision,dev]"
 
 1. Copy `config/articles.example.yaml` to `config/articles.yaml`.
 2. Set the Ollama vision model name in `config/articles.yaml`.
-3. Start Ollama locally and ensure the configured vision model is available.
+3. Start Ollama locally and ensure the configured vision model is available:
+
+   ```powershell
+   & "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe" list
+   ```
+
+   The current local setup includes vision-capable `gemma4:e4b-it-q4_K_M`.
 4. Keep downloaded data and generated reports local; `data/raw/`, `data/images/`, `data/processed/`, and `output/` are ignored by Git.
 
 ## Pipeline
