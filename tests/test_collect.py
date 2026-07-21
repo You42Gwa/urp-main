@@ -1,4 +1,5 @@
 from mm_gate.collect import MediaWikiClient, _normalize_url, _safe_name
+from mm_gate.download import _extension_for
 
 
 def test_safe_name() -> None:
@@ -14,3 +15,7 @@ def test_extract_file_title() -> None:
 
 def test_normalize_url() -> None:
     assert _normalize_url("//en.wikipedia.org/wiki/File:Example.jpg") == "https://en.wikipedia.org/wiki/File:Example.jpg"
+
+
+def test_extension_for_content_type() -> None:
+    assert _extension_for("image/jpeg", "https://example.test/thumbnail/320px-file") == ".jpg"

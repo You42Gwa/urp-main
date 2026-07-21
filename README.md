@@ -45,10 +45,11 @@ collect -> download -> enrich -> gate -> annotate -> build KG -> report
 ```
 
 ```powershell
-python scripts/run_pipeline.py --config config/articles.example.yaml
+python scripts/run_pipeline.py collect --config config/articles.example.yaml
+python scripts/run_pipeline.py download
 ```
 
-The collection stage is implemented. Enrichment, gating, KG construction, and reporting follow next.
+Collection and download stages are implemented. Enrichment, gating, KG construction, and reporting follow next.
 
 ## Project Layout
 

@@ -59,32 +59,40 @@ class MediaWikiClient:
         sections = [section["line"] for section in parse.get("sections", [])]
         return parse["text"], sections
 
-    def image_metadata(self, file_title: str) -> dict[str, str | None]:
+    def image_metadata_many(self, file_titles: list[str]) -> dict[str, dict[str, str | None]]:
+        if not file_titles:
+            return {}
         payload = self.api_get(
             action="query",
-            titles=file_title,
+            titles="|".join(file_titles),
             prop="imageinfo",
             iiprop="url|mime|extmetadata",
         )
         pages = payload["query"]["pages"]
-        if not pages or not pages[0].get("imageinfo"):
-            return {
+        result: dict[str, dict[str, str | None]] = {}
+        for page in pages:
+            if not page.get("imageinfo"):
+                continue
+            info = page["imageinfo"][0]
+            metadata = info.get("extmetadata", {})
+            license_url = _normalize_url(
+                metadata.get("LicenseUrl", {}).get("value") or info.get("descriptionurl")
+            )
+            result[page["title"]] = {
+                "mime_type": info.get("mime"),
+                "license_name": metadata.get("LicenseShortName", {}).get("value"),
+                "license_url": license_url,
+                "file_page_url": _normalize_url(info.get("descriptionurl")),
+            }
+        return result
+
+    @staticmethod
+    def _empty_image_metadata() -> dict[str, str | None]:
+        return {
                 "mime_type": None,
                 "license_name": None,
                 "license_url": None,
                 "file_page_url": None,
-            }
-
-        info = pages[0]["imageinfo"][0]
-        metadata = info.get("extmetadata", {})
-        license_url = _normalize_url(
-            metadata.get("LicenseUrl", {}).get("value") or info.get("descriptionurl")
-        )
-        return {
-            "mime_type": info.get("mime"),
-            "license_name": metadata.get("LicenseShortName", {}).get("value"),
-            "license_url": license_url,
-            "file_page_url": _normalize_url(info.get("descriptionurl")),
         }
 
     def collect_article(self, requested_title: str, max_images: int) -> ArticleRecord:
@@ -107,12 +115,12 @@ class MediaWikiClient:
 
     def _extract_images(self, html: str, max_images: int) -> list[ImageRecord]:
         soup = BeautifulSoup(html, "html.parser")
-        records: list[ImageRecord] = []
+        candidates: list[dict[str, Any]] = []
         seen_urls: set[str] = set()
 
         for image in soup.find_all("img"):
             src = image.get("src")
-            if not src:
+            if not src or not self._is_content_image(image):
                 continue
             source_url = urljoin("https:", src) if src.startswith("//") else urljoin(WIKI_URL, src)
             if source_url in seen_urls:
@@ -124,28 +132,40 @@ class MediaWikiClient:
             heading = image.find_previous(["h2", "h3", "h4"])
             section = heading.get_text(" ", strip=True) if heading else "Lead"
             file_title = self._file_title(image)
+            candidates.append(
+                {
+                    "file_title": file_title,
+                    "source_url": source_url,
+                    "caption": caption,
+                    "section": section,
+                }
+            )
+            seen_urls.add(source_url)
+            if len(candidates) >= max_images:
+                break
+
+        file_titles = [candidate["file_title"] for candidate in candidates if candidate["file_title"]]
+        metadata_by_title = self.image_metadata_many(file_titles)
+        records: list[ImageRecord] = []
+        for candidate in candidates:
+            file_title = candidate["file_title"]
+            metadata = dict(metadata_by_title.get(file_title, self._empty_image_metadata()))
             fallback_file_page_url = (
                 f"{WIKI_URL}{quote(file_title.replace(' ', '_'))}" if file_title else None
             )
-            metadata = self.image_metadata(file_title) if file_title else {}
             file_page_url = metadata.pop("file_page_url", None) or fallback_file_page_url
-
-            digest = hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:16]
+            digest = hashlib.sha256(candidate["source_url"].encode("utf-8")).hexdigest()[:16]
             records.append(
                 ImageRecord(
                     image_id=f"img-{digest}",
                     file_title=file_title,
-                    source_url=source_url,
+                    source_url=candidate["source_url"],
                     file_page_url=file_page_url,
-                    caption=caption,
-                    section=section,
+                    caption=candidate["caption"],
+                    section=candidate["section"],
                     **metadata,
                 )
             )
-            seen_urls.add(source_url)
-            if len(records) >= max_images:
-                break
-
         return records
 
     @staticmethod
@@ -156,6 +176,20 @@ class MediaWikiClient:
             return None
         match = re.search(r"(?:\./|/wiki/)(File:[^?#]+)", unquote(href))
         return match.group(1).replace("_", " ") if match else None
+
+    @staticmethod
+    def _is_content_image(image: Any) -> bool:
+        excluded_classes = {"ambox", "metadata", "navbox", "sistersitebox", "thumbcaption"}
+        for parent in image.parents:
+            classes = set(parent.get("class", []))
+            if classes & excluded_classes:
+                return False
+        width = image.get("width")
+        height = image.get("height")
+        if width and height and width.isdigit() and height.isdigit():
+            if int(width) <= 60 or int(height) <= 60:
+                return False
+        return True
 
 
 def load_titles(config_path: Path) -> tuple[list[str], int]:
