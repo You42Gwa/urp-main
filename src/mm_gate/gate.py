@@ -58,29 +58,29 @@ def _ask_gate(
     context: dict[str, str | None],
     record: dict[str, Any],
 ) -> GateDecision:
-    prompt = f"""You are a strict document image-admission evaluator.
+    prompt = f"""Assess this image for a document-grounded RAG system.
 
-Decide whether this image should be retained for a document-grounded RAG system.
-
-Document title: {context['title']}
-Lead summary: {context['lead_summary'][:1200]}
-Image section: {context['section'] or 'unknown'}
-Wikipedia image caption: {context['wikipedia_caption'] or 'none'}
+Title: {context['title']}
+Lead: {context['lead_summary'][:800]}
+Section: {context['section'] or 'unknown'}
+Wikipedia caption: {context['wikipedia_caption'] or 'none'}
 BLIP caption: {record.get('blip_caption') or 'none'}
-OCR text: {(record.get('ocr_text') or 'none')[:500]}
+OCR: {(record.get('ocr_text') or 'none')[:300]}
 
-Definitions:
-- representative: the image directly represents the document lead topic or a central claim.
-- knowledge_contribution: the image adds visual evidence such as quantitative, relational, spatial, temporal, or structural knowledge beyond the lead and its caption.
-- keep: true when representative or knowledge_contribution is true; otherwise drop.
-- supported_claim_ids: use "lead" and/or the image section name only when supported.
+representative means image directly represents title or a central lead claim.
+knowledge_contribution means image adds visual evidence beyond lead and caption.
+keep when either is true; otherwise drop.
 
-Return only JSON that conforms to the requested schema. Do not assume facts not visible in the image or supplied context."""
+Reply with one JSON object only. No markdown. Use exactly this shape:
+{{"representative":true,"knowledge_contribution":false,"image_type":"portrait","supported_claim_ids":["lead"],"decision":"keep","confidence":0.80,"reason":"short evidence-based reason"}}
+Allowed image_type: photo, portrait, chart, map, diagram, logo, decorative, other.
+Allowed decision: keep, drop. Do not assume facts not visible in image or supplied context."""
     response = ollama.chat(
         model=model_name,
         messages=[{"role": "user", "content": prompt, "images": [str(image_path)]}],
-        format=GateDecision.model_json_schema(),
-        options={"temperature": 0, "num_ctx": 2048, "num_predict": 160},
+        format="json",
+        options={"temperature": 0, "num_ctx": 2048, "num_predict": 250},
+        think=False,
     )
     return GateDecision.model_validate_json(response.message.content)
 
