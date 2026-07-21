@@ -49,9 +49,12 @@ python scripts/run_pipeline.py collect --config config/articles.example.yaml
 python scripts/run_pipeline.py download
 python scripts/run_pipeline.py enrich
 python scripts/run_pipeline.py caption
+python scripts/run_pipeline.py gate --max-per-article 3
+python scripts/run_pipeline.py kg
+python scripts/run_pipeline.py report
 ```
 
-Collection, download, OCR/keyword enrichment, and BLIP captioning stages are implemented. Gating, KG construction, and reporting follow next.
+Collection, download, OCR/keyword enrichment, BLIP captioning, Ollama gating, evidence KG construction, and reporting are implemented.
 
 ## Project Layout
 

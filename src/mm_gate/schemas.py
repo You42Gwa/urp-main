@@ -1,6 +1,7 @@
 """Validated records shared by collection, gating, annotation, and KG stages."""
 
 from pydantic import BaseModel, Field, HttpUrl
+from typing import Literal
 
 
 class ImageRecord(BaseModel):
@@ -29,9 +30,9 @@ class ArticleRecord(BaseModel):
 class GateDecision(BaseModel):
     representative: bool
     knowledge_contribution: bool
-    image_type: str
+    image_type: Literal["photo", "portrait", "chart", "map", "diagram", "logo", "decorative", "other"]
     supported_claim_ids: list[str] = Field(default_factory=list)
-    decision: str
+    decision: Literal["keep", "drop"]
     confidence: float = Field(ge=0.0, le=1.0)
     reason: str
 
