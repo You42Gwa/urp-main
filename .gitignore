@@ -22,6 +22,9 @@ data/images/
 data/processed/
 output/
 .cache/
+.venv/
+__pycache__/
+*.py[cod]
 
 # Local Codex/agent configuration
 .codex/
