@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Local Codex/agent configuration
+.codex/
+.agents/skills/caveman/
+skills-lock.json
+PROJECT_MEMORY.md
+
+# Add stack-specific build, dependency, and cache entries when stack is chosen.
