@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Document-claim-preserving image gate for multimodal evidence KG"
 requires-python = ">=3.11"
 dependencies = [
+  "beautifulsoup4>=4.12",
   "ollama>=0.4",
   "Pillow>=10.0",
   "pydantic>=2.0",

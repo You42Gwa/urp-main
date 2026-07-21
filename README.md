@@ -45,10 +45,10 @@ collect -> download -> enrich -> gate -> annotate -> build KG -> report
 ```
 
 ```powershell
-python scripts/run_pipeline.py --config config/articles.yaml
+python scripts/run_pipeline.py --config config/articles.example.yaml
 ```
 
-The command is currently a scaffold. Each stage will be implemented in `src/mm_gate/`.
+The collection stage is implemented. Enrichment, gating, KG construction, and reporting follow next.
 
 ## Project Layout
 
