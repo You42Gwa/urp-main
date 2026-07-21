@@ -1,4 +1,5 @@
 from mm_gate.collect import MediaWikiClient, _normalize_url, _safe_name
+from mm_gate.caption import MODEL_ID
 from mm_gate.download import _extension_for
 from mm_gate.enrich import _keywords
 
@@ -24,3 +25,7 @@ def test_extension_for_content_type() -> None:
 
 def test_keywords_excludes_stopwords() -> None:
     assert _keywords("The Apollo 11 mission and Apollo program")[:2] == ["apollo", "mission"]
+
+
+def test_blip_model_id() -> None:
+    assert MODEL_ID == "Salesforce/blip-image-captioning-base"

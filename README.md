@@ -48,9 +48,10 @@ collect -> download -> enrich -> gate -> annotate -> build KG -> report
 python scripts/run_pipeline.py collect --config config/articles.example.yaml
 python scripts/run_pipeline.py download
 python scripts/run_pipeline.py enrich
+python scripts/run_pipeline.py caption
 ```
 
-Collection, download, and OCR/keyword enrichment stages are implemented. BLIP captioning, gating, KG construction, and reporting follow next.
+Collection, download, OCR/keyword enrichment, and BLIP captioning stages are implemented. Gating, KG construction, and reporting follow next.
 
 ## Project Layout
 
