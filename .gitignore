@@ -16,6 +16,13 @@ Thumbs.db
 tmp/
 temp/
 
+# Project runtime data and generated reports
+data/raw/
+data/images/
+data/processed/
+output/
+.cache/
+
 # Local Codex/agent configuration
 .codex/
 .agents/skills/caveman/

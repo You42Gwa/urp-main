@@ -20,3 +20,5 @@ Initial project setup complete. Add application source and update commands below
 - `PROJECT_MEMORY.md`: durable project context, decisions, progress, and open items.
 - `AGENTS.md`: contributor and AI-agent working rules.
 - `docs/decisions/`: short records for significant technical decisions.
+- `docs/research-direction.md`: multimodal research direction and execution plan.
+- `docs/implementation-plan.md`: MVP scope, pipeline, and evidence KG schema.

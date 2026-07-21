@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multimodal-image-gate"
+version = "0.1.0"
+description = "Document-claim-preserving image gate for multimodal evidence KG"
+requires-python = ">=3.11"
+dependencies = [
+  "ollama>=0.4",
+  "Pillow>=10.0",
+  "pydantic>=2.0",
+  "requests>=2.32",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+vision = [
+  "torch>=2.0",
+  "transformers>=4.40",
+]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.setuptools.packages.find]
+where = ["src"]

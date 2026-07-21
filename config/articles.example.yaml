@@ -1,0 +1,18 @@
+# Pilot corpus. Copy to config/articles.yaml and replace with selected English Wikipedia titles.
+articles:
+  - Alan Turing
+  - Apollo 11
+  - Eiffel Tower
+  - Great Barrier Reef
+  - Human genome
+  - Large language model
+  - Marie Curie
+  - Mona Lisa
+  - Solar eclipse
+  - World War II
+
+pipeline:
+  language: en
+  ollama_model: qwen2.5vl:7b
+  max_images_per_article: 10
+  keep_confidence_threshold: 0.70
